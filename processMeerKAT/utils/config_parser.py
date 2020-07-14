@@ -195,6 +195,9 @@ def overwrite_config(filename, conf_dict={}, conf_sec='', sec_comment=''):
     config.write(config_file)
     config_file.close()
 
+# ========================================================================================================
+
+
 def parse_spw(filename):
 
     config_dict,config = parse_config(filename)
@@ -244,8 +247,11 @@ def validate_args(args,config,parser=None):
             raise_error(config, msg, parser)
         
         if args['MS'] not in [None,'None'] and not os.path.isdir(args['MS']):
-            msg = "Input MS '{0}' not found.".format(args['MS'])
-            raise_error(config, msg, parser)
+            if not args['iris']:
+                msg = "Input MS '{0}' not found.".format(args['MS'])
+                raise_error(config, msg, parser)
+            else:
+                logger.logger.info("IRIS: path to input MS '{0}' not checked - assumed correct.".format(args['MS']))
 
     if parser is not None and not args['build'] and args['MS']:
         msg = "Only input an MS [-M --MS] during [-B --build] step. Otherwise input is ignored."
@@ -284,3 +290,21 @@ def validate_args(args,config,parser=None):
 
 # ========================================================================================================
 
+def raise_error(config,msg,parser=None):
+    
+    """Raise error with specified message, either as parser error (when option passed in via command line),
+        or ValueError (when option passed in via config file).
+        
+        Arguments:
+        ----------
+        config : str
+        Path to config file.
+        msg : str
+        Error message to display.
+        parser : class ``argparse.ArgumentParser``, optional
+        If this is input, parser error will be raised."""
+    
+    if parser is None:
+        raise ValueError("Bad input found in '{0}' -- {1}".format(config,msg))
+    else:
+        parser.error(msg)

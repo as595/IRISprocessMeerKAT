@@ -511,7 +511,7 @@ def format_args_iris(config,submit,quiet,dependencies):
     logger.logger.debug("Copying '{0}' to '{1}', and using this to run pipeline.".format(config,globals.TMP_CONFIG))
     copyfile(config, globals.TMP_CONFIG)
     if not quiet:
-        logger.logger.warn("Changing [slurm] section in your config will have no effect unless you [-R --run] again.")
+        logger.logger.warn("Changing [iris] section in your config will have no effect until you submit your jdl")
     
     return kwargs
 
@@ -536,9 +536,9 @@ def validate_args_iris(args,config,parser=None):
             msg = "You must input an MS [-M --MS] to build the config file."
             raise_error(config, msg, parser)
         
-    if args['MS'] not in [None,'None'] and not os.path.isdir(args['MS']):
-        msg = "Input MS '{0}' not found.".format(args['MS'])
-        raise_error(config, msg, parser)
+        if args['MS'] not in [None,'None'] and not os.path.isdir(args['MS']) and not args['MS'][0:3]=="LFN":
+            msg = "Input MS '{0}' not found.".format(args['MS'])
+            raise_error(config, msg, parser)
 
     if parser is not None and not args['build'] and args['MS']:
         msg = "Only input an MS [-M --MS] during [-B --build] step. Otherwise input is ignored."
@@ -728,3 +728,23 @@ def pop_script(kwargs,script):
     return popped
 
 # ========================================================================================================
+
+def raise_error(config,msg,parser=None):
+    
+    """Raise error with specified message, either as parser error (when option passed in via command line),
+        or ValueError (when option passed in via config file).
+        
+        Arguments:
+        ----------
+        config : str
+        Path to config file.
+        msg : str
+        Error message to display.
+        parser : class ``argparse.ArgumentParser``, optional
+        If this is input, parser error will be raised."""
+    
+    if parser is None:
+        raise ValueError("Bad input found in '{0}' -- {1}".format(config,msg))
+    else:
+        parser.error(msg)
+
