@@ -57,6 +57,6 @@ If you have already set your grid proxy and the information in your config file 
 python run_pipeline.py
 ```
 
-will run the whole thing for you.
+will run the whole thing for you. The overview looks like this:
 
 ![](/media/IRISprocessMeerKAT.png)
