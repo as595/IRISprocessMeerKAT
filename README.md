@@ -39,14 +39,17 @@ The documentation for the original Ilifu implementation can be accessed on the [
 
 The IRISprocessMeerKAT.py script will create a set of runscripts and jdl files for submitting your pipeline to IRIS. It will also create a file called run_pipeline.py which puts all of these together and runs them in order. These are:
 
- - meerkat_precal.sh
- - meerkat_precal.jdl
- - meerkat_runcal.sh
- - meerkat_runcal.jdl
- - meerkat_slfcal.sh
- - meerkat_slfcal.jdl
- - myconfig.txt
- - run_pipeline.py
+```
+IRISprocessMeerKAT/
+└─── meerkat_precal.jdl
+     meerkat_runcal.jdl
+     meerkat_slfcal.jdl
+     meerkat_precal.sh
+     meerkat_runcal.sh
+     meerkat_slfcal.sh
+     myconfig.txt
+     run_pipeline.py
+```
 
 If you have already set your grid proxy and the information in your config file is correct then simply typing:
 
