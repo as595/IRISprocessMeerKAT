@@ -1,13 +1,13 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import sys
-import os
-
-import config_parser
-from config_parser import validate_args as va
-import bookkeeping
+import os,sys
+sys.path.append(os.getcwd())
 import glob
+
+from utils import config_parser
+from utils.config_parser import validate_args as va
+from utils import bookkeeping
 
 def run_tclean(visname, fields, keepmms):
     """
@@ -62,10 +62,10 @@ def run_tclean(visname, fields, keepmms):
                     weighting='briggs', robust=0, cell='2arcsec',
                     specmode='mfs', deconvolver=deconvolver, nterms=terms, scales=[],
                     savemodel='none', gridder='standard',
-                    restoration=True, pblimit=0, parallel=True)
+                    restoration=True, pblimit=0, parallel=False)
 
             exportfits(imagename=tt+'.image'+suffix, fitsimage=tt+'.fits')
-
+    
 
     #Image all calibrator (and extra) fields and export to fits
     for subf in fields.gainfields.split(',') + fields.extrafields.split(','):
@@ -81,7 +81,7 @@ def run_tclean(visname, fields, keepmms):
                         imsize=[512,512], threshold=0,niter=1000, weighting='briggs',
                         robust=0, cell='2arcsec', specmode='mfs', deconvolver=deconvolver,
                         nterms=terms, scales=[], savemodel='none', gridder='standard',
-                        restoration=True, pblimit=0, parallel=True)
+                        restoration=True, pblimit=0, parallel=False)
 
                 exportfits(imagename=secimname+'.image'+suffix, fitsimage=secimname+'.fits')
 

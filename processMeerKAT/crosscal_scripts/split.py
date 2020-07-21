@@ -1,12 +1,12 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import sys
-import os
+import os,sys
+sys.path.append(os.getcwd())
 
-import config_parser
-import bookkeeping
-from config_parser import validate_args as va
+from utils import config_parser
+from utils import bookkeeping
+from utils.config_parser import validate_args as va
 
 def split_vis(visname, spw, fields, specavg, timeavg, keepmms):
 
@@ -49,6 +49,10 @@ def main(args,taskvals):
 
     config_parser.overwrite_config(args['config'], conf_dict={'vis' : "'{0}'".format(newvis)}, conf_sec='data')
     config_parser.overwrite_config(args['config'], conf_dict={'crosscal_vis': "'{0}'".format(visname)}, conf_sec='run', sec_comment='# Internal variables for pipeline execution')
+    
+    fnames = msmd.namesforfields()
+    config_parser.overwrite_config(args['config'], conf_dict={'fieldnames': "{0}".format(fnames)}, conf_sec='run', sec_comment='# Internal variables for pipeline execution')
+    
     msmd.done()
 
 if __name__ == '__main__':

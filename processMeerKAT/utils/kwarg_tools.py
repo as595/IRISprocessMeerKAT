@@ -1,15 +1,111 @@
 import os,sys
 from datetime import datetime
 import re
+import argparse
+import ConfigParser
+import ast
 from shutil import copyfile
 
 import logger
 import globals
 import config_parser
 from paths import *
-
+import bookkeeping
 
 # ========================================================================================================
+# ========================================================================================================
+
+def parse_args():
+    
+    """Parse arguments into this script.
+        
+        Returns:
+        --------
+        args : class ``argparse.ArgumentParser``
+        Known and validated arguments."""
+    
+    def parse_scripts(val):
+        
+        """Format individual arguments passed into a list for [ -S --scripts] argument, including paths and boolean values.
+            
+            Arguments/Returns:
+            ------------------
+            val : bool or str
+            Path to script or container, or boolean representing whether that script is threadsafe (for MPI)."""
+        
+        if val.lower() in ('true','false'):
+            return (val.lower() == 'true')
+        else:
+            return check_path(val)
+
+    parser = argparse.ArgumentParser(prog=globals.THIS_PROG,description='Process MeerKAT data via CASA measurement set. Version: {0}'.format(globals.__version__))
+
+    parser.add_argument("-M","--MS",metavar="path", required=False, type=str, help="Path to measurement set.")
+    parser.add_argument("-C","--config",metavar="path", default=globals.CONFIG, required=False, type=str, help="Relative (not absolute) path to config file.")
+    parser.add_argument("-N","--nodes",metavar="num", required=False, type=int, default=1,
+                        help="Use this number of nodes [default: 1; max: {0}].".format(globals.TOTAL_NODES_LIMIT))
+    parser.add_argument("-t","--ntasks-per-node", metavar="num", required=False, type=int, default=8,
+                        help="Use this number of tasks (per node) [default: 16; max: {0}].".format(globals.NTASKS_PER_NODE_LIMIT))
+    parser.add_argument("-D","--plane", metavar="num", required=False, type=int, default=1,
+                        help="Distribute tasks of this block size before moving onto next node [default: 1; max: ntasks-per-node].")
+    parser.add_argument("-m","--mem", metavar="num", required=False, type=int, default=globals.MEM_PER_NODE_GB_LIMIT,
+                        help="Use this many GB of memory (per node) for threadsafe scripts [default: {0}; max: {0}].".format(globals.MEM_PER_NODE_GB_LIMIT))
+    parser.add_argument("-p","--partition", metavar="name", required=False, type=str, default="Main", help="SLURM partition to use [default: 'Main'].")
+    parser.add_argument("-T","--time", metavar="time", required=False, type=str, default="12:00:00", help="Time limit to use for all jobs, in the form d-hh:mm:ss [default: '12:00:00'].")
+    parser.add_argument("-S","--scripts", action='append', nargs=3, metavar=('script','threadsafe','container'), required=False, type=parse_scripts, default=globals.SCRIPTS,
+                        help="Run pipeline with these scripts, in this order, using these containers (3rd value - empty string to default to [-c --container]). Is it threadsafe (2nd value)?")
+    parser.add_argument("-b","--precal_scripts", action='append', nargs=3, metavar=('script','threadsafe','container'), required=False, type=parse_scripts, default=globals.PRECAL_SCRIPTS, help="Same as [-S --scripts], but run before calibration.")
+    parser.add_argument("-a","--postcal_scripts", action='append', nargs=3, metavar=('script','threadsafe','container'), required=False, type=parse_scripts, default=globals.POSTCAL_SCRIPTS, help="Same as [-S --scripts], but run after calibration.")
+    parser.add_argument("-w","--mpi_wrapper", metavar="path", required=False, type=str, default=globals.MPI_WRAPPER,
+                        help="Use this mpi wrapper when calling threadsafe scripts [default: '{0}'].".format(globals.MPI_WRAPPER))
+    parser.add_argument("-c","--container", metavar="path", required=False, type=str, default=globals.CONTAINER, help="Use this container when calling scripts [default: '{0}'].".format(globals.CONTAINER))
+    parser.add_argument("-n","--name", metavar="unique", required=False, type=str, default='', help="Unique name to give this pipeline run (e.g. 'run1_'), appended to the start of all job names. [default: ''].")
+    parser.add_argument("-d","--dependencies", metavar="list", required=False, type=str, default='', help="Comma-separated list (without spaces) of SLURM job dependencies (only used when nspw=1). [default: ''].")
+    parser.add_argument("-e","--exclude", metavar="nodes", required=False, type=str, default='', help="SLURM worker nodes to exclude [default: ''].")
+    parser.add_argument("-A","--account", metavar="group", required=False, type=str, default='b03-idia-ag', help="SLURM accounting group to use (e.g. 'b05-pipelines-ag' - check 'sacctmgr show user $(whoami) -s format=account%%30') [default: 'b03-idia-ag'].")
+    parser.add_argument("-r","--reservation", metavar="name", required=False, type=str, default='', help="SLURM reservation to use. [default: ''].")
+
+    parser.add_argument("-l","--local", action="store_true", required=False, default=False, help="Build config file locally (i.e. without calling srun) [default: False].")
+    parser.add_argument("-s","--submit", action="store_true", required=False, default=False, help="Submit jobs immediately to SLURM queue [default: False].")
+    parser.add_argument("-v","--verbose", action="store_true", required=False, default=False, help="Verbose output? [default: False].")
+    parser.add_argument("-q","--quiet", action="store_true", required=False, default=False, help="Activate quiet mode, with suppressed output [default: False].")
+    parser.add_argument("-P","--dopol", action="store_true", required=False, default=False, help="Perform polarization calibration in the pipeline [default: False].")
+    parser.add_argument("-2","--do2GC", action="store_true", required=False, default=False, help="Perform (2GC) self-calibration in the pipeline [default: False].")
+    parser.add_argument("-x","--nofields", action="store_true", required=False, default=False, help="Do not read the input MS to extract field IDs [default: False].")
+    parser.add_argument("-I","--iris", action="store_true", required=False, default=False, help="Create pipeline for IRIS rather than Ilifu.")
+
+    #add mutually exclusive group - don't want to build config, run pipeline, or display version at same time
+    run_args = parser.add_mutually_exclusive_group(required=True)
+    run_args.add_argument("-B","--build", action="store_true", required=False, default=False, help="Build config file using input MS.")
+    run_args.add_argument("-R","--run", action="store_true", required=False, default=False, help="Run pipeline with input config file.")
+    run_args.add_argument("-V","--version", action="store_true", required=False, default=False, help="Display the version of this pipeline and quit.")
+    run_args.add_argument("-L","--license", action="store_true", required=False, default=False, help="Display this program's license and quit.")
+    
+    args, unknown = parser.parse_known_args()
+    
+    if len(unknown) > 0:
+        parser.error('Unknown input argument(s) present - {0}'.format(unknown))
+    
+    if args.run:
+        if args.config is None:
+            parser.error("You must input a config file [--config] to run the pipeline.")
+        if not os.path.exists(args.config):
+            parser.error("Input config file '{0}' not found. Please set [-C --config] or write a new one with [-B --build].".format(args.config))
+
+    #if user inputs a list a scripts, remove the default list
+    if len(args.scripts) > len(globals.SCRIPTS):
+        [args.scripts.pop(0) for i in range(len(globals.SCRIPTS))]
+        if len(args.precal_scripts) > len(globals.PRECAL_SCRIPTS):
+            [args.precal_scripts.pop(0) for i in range(len(globals.PRECAL_SCRIPTS))]
+    if len(args.postcal_scripts) > len(globals.POSTCAL_SCRIPTS):
+        [args.postcal_scripts.pop(0) for i in range(len(globals.POSTCAL_SCRIPTS))]
+    
+    #validate arguments before returning them
+    validate_args(vars(args),args.config,parser=parser)
+    
+    return args
+
+
 # ========================================================================================================
 
 def format_args(config,submit,quiet,dependencies):
@@ -387,7 +483,7 @@ def format_args_iris(config,submit,quiet,dependencies):
         Returns:
         --------
         kwargs : dict
-        Keyword arguments extracted from [slurm] section of config file, to be passed into write_jobs() function."""
+        Keyword arguments extracted from [iris] section of config file, to be passed into write_jobs() function."""
     
     #Ensure all keys exist in these sections
     kwargs = get_config_kwargs(config,'iris',globals.IRIS_CONFIG_KEYS)
@@ -608,7 +704,7 @@ def spw_split_iris(spw,nspw,config,badfreqranges,MS,partition,createmms=True,rem
             for freq in badfreqranges:
                 bad_low,bad_high = get_spw_bounds('0:{0}'.format(freq))[0:2]
                 if low >= bad_low and high <= bad_high:
-                    logger.logger.info("Won't process spw '0:{0}~{1}{2}', since it's completely encompassed by bad frequency range '{3}'.".format(low,high,unit,freq))
+                    logger.logger.info("Won't include spw '0:{0}~{1}{2}', since it's completely encompassed by bad frequency range '{3}'.".format(low,high,unit,freq))
                     badfreq = True
                     break
         if badfreq:
@@ -620,30 +716,20 @@ def spw_split_iris(spw,nspw,config,badfreqranges,MS,partition,createmms=True,rem
     #Overwrite config with new SPWs
     config_parser.overwrite_config(config, conf_dict={'spw' : "'{0}'".format(','.join(SPWs))}, conf_sec='crosscal')
 
-    #Create each spw as directory and place config in there
-    logger.logger.info("Making {0} directories for SPWs ({1}) and copying '{2}' to each of them.".format(nspw,SPWs,config))
-    for spw in SPWs:
-        spw_config = '{0}/{1}'.format(spw.replace('0:',''),config)
-        if not os.path.exists(spw.replace('0:','')):
-            os.mkdir(spw.replace('0:',''))
-        copyfile(config, spw_config)
-        config_parser.overwrite_config(spw_config, conf_dict={'spw' : "'{0}'".format(spw)}, conf_sec='crosscal')
-        config_parser.overwrite_config(spw_config, conf_dict={'nspw' : 1}, conf_sec='crosscal')
-        config_parser.overwrite_config(spw_config, conf_dict={'calcrefant' : False}, conf_sec='crosscal')
-        config_parser.overwrite_config(spw_config, conf_dict={'precal_scripts' : []}, conf_sec='iris')
-        config_parser.overwrite_config(spw_config, conf_dict={'postcal_scripts' : []}, conf_sec='iris')
-        #Look 1 directory up when using relative path
-        if MS[0] != '/':
-            config_parser.overwrite_config(spw_config, conf_dict={'vis' : "'../{0}'".format(MS)}, conf_sec='data')
-        elif not partition:
-            basename, ext = os.path.splitext(MS.rstrip('/ '))
-            filebase = os.path.split(basename)[1]
-            extn = 'mms' if createmms else 'ms'
-            vis = '{0}.{1}.{2}'.format(filebase,spw.replace('0:',''),extn)
-            logger.warn("Since script with 'partition' in its name isn't present in '{0}', assuming partition has already been done, and setting vis='{1}' in '{2}'. If '{1}' doesn't exist, please update '{2}', as the pipeline will not launch successfully.".format(config,vis,spw_config))
-            orig_vis = config_parser.get_key(spw_config, 'data', 'vis')
-            config_parser.overwrite_config(spw_config, conf_dict={'orig_vis' : "'{0}'".format(orig_vis)}, conf_sec='run', sec_comment='# Internal variables for pipeline execution')
-            config_parser.overwrite_config(spw_config, conf_dict={'vis' : "'{0}'".format(vis)}, conf_sec='data')
+    spw_config = '{0}_{1}'.format(config[:-4],"calib.txt")
+    copyfile(config, spw_config)
+    config_parser.overwrite_config(spw_config, conf_dict={'nspw' : nspw}, conf_sec='crosscal')
+    config_parser.overwrite_config(spw_config, conf_dict={'calcrefant' : False}, conf_sec='crosscal')
+    #config_parser.overwrite_config(spw_config, conf_dict={'precal_scripts' : []}, conf_sec='iris')
+    #config_parser.overwrite_config(spw_config, conf_dict={'postcal_scripts' : []}, conf_sec='iris')
+
+    basename, ext = os.path.splitext(MS.rstrip('/ '))
+    filebase = os.path.split(basename)[1].rstrip('.ms.tar')
+    extn = 'mms' if createmms else 'ms'
+    vis = '{0}.{1}.{2}.{3}'.format(filebase,spw.replace('0:',''),extn,'tar')
+    orig_vis = config_parser.get_key(spw_config, 'data', 'vis')
+    config_parser.overwrite_config(spw_config, conf_dict={'orig_vis' : "'{0}'".format(orig_vis)}, conf_sec='run', sec_comment='# Internal variables for pipeline execution')
+    config_parser.overwrite_config(spw_config, conf_dict={'vis' : "'{0}'".format(vis)}, conf_sec='data')
 
     return nspw
 

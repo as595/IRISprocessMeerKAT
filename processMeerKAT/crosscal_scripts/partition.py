@@ -4,14 +4,13 @@
 """
 Runs partition on the input MS
 """
-import sys
-import os
+import os,sys
+sys.path.append(os.getcwd())
 
-import config_parser
-from config_parser import validate_args as va
-import read_ms
-import processMeerKAT
-import bookkeeping
+from utils import config_parser
+from utils.config_parser import validate_args as va
+from utils import globals
+from utils import bookkeeping
 
 def do_partition(visname, spw, preavg, CPUs, include_crosshand, createmms):
     # Get the .ms bit of the filename, case independent
@@ -24,8 +23,7 @@ def do_partition(visname, spw, preavg, CPUs, include_crosshand, createmms):
     chanaverage = True if preavg > 1 else False
     correlation = '' if include_crosshand else 'XX,YY'
 
-    mstransform(vis=visname, outputvis=mvis, spw=spw, createmms=createmms, datacolumn='DATA', chanaverage=chanaverage, chanbin=preavg,
-                numsubms=nscan, separationaxis='scan', keepflags=False, usewtspectrum=True, nthreads=CPUs, antenna='*&', correlation=correlation)
+    mstransform(vis=visname, outputvis=mvis, spw=spw, createmms=createmms, datacolumn='DATA', chanaverage=chanaverage, chanbin=preavg, numsubms=nscan, separationaxis='scan', keepflags=False, usewtspectrum=True, nthreads=CPUs, antenna='*&', correlation=correlation)
 
     return mvis
 
@@ -34,8 +32,8 @@ def main(args,taskvals):
     visname = va(taskvals, 'data', 'vis', str)
     calcrefant = va(taskvals, 'crosscal', 'calcrefant', bool, default=False)
     refant = va(taskvals, 'crosscal', 'refant', str, default='m005')
-    spw = va(taskvals, 'crosscal', 'spw', str, default='')
-    tasks = va(taskvals, 'slurm', 'ntasks_per_node', int)
+    SPWs = va(taskvals, 'crosscal', 'spw', str, default='')
+    #tasks = va(taskvals, 'slurm', 'ntasks_per_node', int)
     preavg = va(taskvals, 'crosscal', 'chanbin', int, default=1)
     include_crosshand = va(taskvals, 'run', 'dopol', bool, default=False)
     createmms = va(taskvals, 'crosscal', 'createmms', bool, default=True)
@@ -45,11 +43,14 @@ def main(args,taskvals):
 
     if not include_crosshand and npol == 4:
         npol = 2
-    CPUs = npol if tasks*npol <= processMeerKAT.CPUS_PER_NODE_LIMIT else 1 #hard-code for number of polarisations
 
-    mvis = do_partition(visname, spw, preavg, CPUs, include_crosshand, createmms)
-    mvis = "'{0}'".format(mvis)
-    vis = "'{0}'".format(visname)
+    #CPUs = npol if tasks*npol <= processMeerKAT.CPUS_PER_NODE_LIMIT else 1 #hard-code for number of polarisations
+    CPUs = int(sys.argv[-1])
+
+    for spw in SPWs.split(','):
+        mvis = do_partition(visname, spw, preavg, CPUs, include_crosshand, createmms)
+        mvis = "'{0}'".format(mvis)
+        vis = "'{0}'".format(visname)
 
     config_parser.overwrite_config(args['config'], conf_sec='data', conf_dict={'vis':mvis})
     config_parser.overwrite_config(args['config'], conf_sec='run', sec_comment='# Internal variables for pipeline execution', conf_dict={'orig_vis':vis})

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import os
+import os,sys
+sys.path.append(os.getcwd())
+
 import glob
-import config_parser
 import traceback
 
 import matplotlib
@@ -10,9 +11,10 @@ import matplotlib
 matplotlib.use('Agg', warn=False)
 import matplotlib.pyplot as plt
 
-from config_parser import validate_args as va
-import bookkeeping
-import glob
+from utils import config_parser
+from utils.config_parser import validate_args as va
+from utils import bookkeeping
+
 PLOT_DIR = 'plots'
 EXTN = 'pdf'
 

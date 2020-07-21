@@ -1,13 +1,13 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import sys
-import os
+import os,sys
+sys.path.append(os.getcwd())
 import shutil
 
-import config_parser
-import bookkeeping
-from config_parser import validate_args as va
+from utils import config_parser
+from utils import bookkeeping
+from utils.config_parser import validate_args as va
 
 import logging
 from time import gmtime
@@ -69,7 +69,7 @@ def main(args,taskvals):
     standard = va(taskvals, 'crosscal', 'standard', str, default='Stevens-Reynolds 2016')
     refant = va(taskvals, 'crosscal', 'refant', str, default='m059')
 
-    do_parallel_cal(visname, fields, calfiles, refant, caldir,minbaselines, standard)
+    do_parallel_cal(visname, fields, calfiles, refant, caldir, minbaselines, standard)
 
 if __name__ == '__main__':
 

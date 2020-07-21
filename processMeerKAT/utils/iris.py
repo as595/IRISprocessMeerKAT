@@ -72,7 +72,7 @@ def write_command(script, container, config, flag):
 
 # ========================================================================================================
 
-def write_jobs_iris(config, scripts=[], threadsafe=[], containers=[], num_precal_scripts=0, outputse = '', tags='', site='', platform = '', outpath='', name='', verbose=False, quiet=False, timestamp=''):
+def write_runscript(config, scripts=[], threadsafe=[], containers=[], num_precal_scripts=0, outputse = '', tags='', site='', platform = '', outpath='', name='', verbose=False, quiet=False, timestamp=''):
     
     """Write a series of commands to calibrate a CASA MS"""
     
@@ -165,5 +165,14 @@ def write_jobs_iris(config, scripts=[], threadsafe=[], containers=[], num_precal
     return
 
 # ========================================================================================================
+
+def write_jobs_iris(config, scripts=[], threadsafe=[], containers=[], num_precal_scripts=0, outputse = '', tags='', site='', platform = '', outpath='', name='', verbose=False, quiet=False, timestamp=''):
+    
+    # write precal runscript & jdl
+    
+    # write calibration runscript & jdl
+
+    return
+
 # ========================================================================================================
 

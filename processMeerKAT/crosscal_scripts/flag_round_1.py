@@ -1,12 +1,12 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import sys
-import os
+import os,sys
+sys.path.append(os.getcwd())
 
-import config_parser
-from config_parser import validate_args as va
-import bookkeeping
+from utils import config_parser
+from utils.config_parser import validate_args as va
+from utils import bookkeeping
 
 def do_pre_flag(visname, fields, badfreqranges, badants):
     clip = [0., 50.]

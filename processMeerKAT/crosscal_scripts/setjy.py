@@ -1,11 +1,12 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import os, sys, shutil
+import os,sys,shutil
+sys.path.append(os.getcwd())
 
-import config_parser
-import bookkeeping
-from config_parser import validate_args as va
+from utils import config_parser
+from utils import bookkeeping
+from utils.config_parser import validate_args as va
 import numpy as np
 import logging
 from time import gmtime

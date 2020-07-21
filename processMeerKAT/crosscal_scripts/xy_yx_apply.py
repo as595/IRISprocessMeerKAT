@@ -1,13 +1,14 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import sys
-import os
+import os,sys
+sys.path.append(os.getcwd())
 import shutil
 
-import config_parser
-import bookkeeping, read_ms
-from config_parser import validate_args as va
+from utils import config_parser
+from utils import bookkeeping
+from utils import ms_tools
+from utils.config_parser import validate_args as va
 from recipes.almapolhelpers import *
 
 import logging
@@ -30,7 +31,7 @@ def do_cross_cal_apply(visname, fields, calfiles, caldir):
     calfiles = calfiles._replace(xpolfile=xy0pfile)
     fields = fields._replace(xpolfield=fields.dpolfield)
 
-    xyfield = read_ms.get_xy_field(visname, fields)
+    xyfield = ms_tools.get_xy_field(visname, fields)
 
     if len(fields.gainfields) > 1:
         fluxfile = calfiles.fluxfile

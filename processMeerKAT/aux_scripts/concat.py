@@ -1,14 +1,14 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import os
-import sys
+import os,sys
+sys.path.append(os.getcwd())
 import glob
 from shutil import copytree
 
-import config_parser
-from config_parser import validate_args as va
-import bookkeeping
+from utils import bookkeeping
+from utils import config_parser
+from utils.config_parser import validate_args as va
 
 import logging
 from time import gmtime
@@ -62,7 +62,8 @@ def get_infiles(dirs,suffix):
 
 def do_concat(visname, fields, dirs='*MHz'):
 
-    msmd.open(visname)
+    #msmd.open(visname)
+    fieldnames = va(taskvals, 'run', 'fieldnames', str)
 
     newvis = visname
     logger.info('Beginning {0}.'.format(sys.argv[0]))
@@ -72,8 +73,9 @@ def do_concat(visname, fields, dirs='*MHz'):
     for field in [fields.targetfield,fields.gainfields,fields.extrafields]:
         if field != '':
             for target in field.split(','):
-                fname = msmd.namesforfields(int(target))[0]
-
+                #fname = msmd.namesforfields(int(target))[0]
+                fname = fieldnames[int(target)]
+                
                 #Concat tt0 images (into continuum cube)
                 suffix = 'images/*{0}*image.tt0'.format(fname)
                 files,pattern = get_infiles(dirs,suffix)
@@ -140,7 +142,7 @@ def do_concat(visname, fields, dirs='*MHz'):
                     if not os.path.exists(out):
                         logger.error("Output MMS '{0}' attempted to write but was not written.".format(out))
 
-    msmd.done()
+    #msmd.done()
     logger.info('Completed {0}.'.format(sys.argv[0]))
 
     return newvis
@@ -152,7 +154,7 @@ def main(args,taskvals):
     nspw = va(taskvals, 'crosscal', 'nspw', int, default='')
     fields = bookkeeping.get_field_ids(taskvals['fields'])
     dirs = config_parser.parse_spw(args['config'])[3]
-
+    
     if ',' in spw:
         newvis = do_concat(visname, fields, dirs)
         config_parser.overwrite_config(args['config'], conf_dict={'vis' : "'{0}'".format(newvis)}, conf_sec='data')

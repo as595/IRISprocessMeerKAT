@@ -1,10 +1,12 @@
 #Copyright (C) 2020 Inter-University Institute for Data Intensive Astronomy
 #See processMeerKAT.py for license details.
 
-import os
-import config_parser
-from config_parser import validate_args as va
-import bookkeeping
+import os,sys
+sys.path.append(os.getcwd())
+
+from utils import config_parser
+from utils.config_parser import validate_args as va
+from utils import bookkeeping
 import glob
 PLOT_DIR = 'plots'
 EXTN = 'pdf'

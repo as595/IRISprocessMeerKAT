@@ -1,12 +1,12 @@
 #!/usr/bin/env python2.7
 
-import utils.config_tools as ct
-import utils.kwarg_tools as kt
-import utils.slurm as slurm
-import utils.iris as iris
-import utils.globals as globals
+from utils import config_tools as ct
+from utils import kwarg_tools as kt
+from utils import slurm as slurm
+from utils import iris as iris
+from utils import globals
 from utils.logger import setup_logger
-from utils.config_parser import parse_args
+from utils.kwarg_tools import parse_args
 
 
 def main():
