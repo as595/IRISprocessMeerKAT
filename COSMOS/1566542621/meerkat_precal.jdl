@@ -1,5 +1,5 @@
 [
-JobName = "meerkat_precal";
+JobName = "1566542621_sdp_l0_precal";
 InputSandbox = {"meerkat_precal.sh","myconfig.txt","IRISprocessMeerKAT.tar.gz"};
 InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.ms", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/meerkat.xvfb.simg", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/casameer-5.4.1.xvfb.simg"};
 
@@ -11,9 +11,9 @@ Arguments = "%j %n %s";
 Platform = "EL7";
 
 OutputSE = "UKI-NORTHGRID-MAN-HEP-disk";
-OutputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/cosmos/1566542621/1566542621.880.0~930.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.930.0~980.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.980.0~1030.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1030.0~1080.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1080.0~1130.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1130.0~1180.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1280.0~1330.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1330.0~1380.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1380.0~1430.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1430.0~1480.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1480.0~1530.0MHz.mms.tar.gz","LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621.1630.0~1680.0MHz.mms.tar.gz"};
+OutputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/cosmos/1566542621/1566542621_sdp_l0.880.0~930.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.930.0~980.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.980.0~1030.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1030.0~1080.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1080.0~1130.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1130.0~1180.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1280.0~1330.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1330.0~1380.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1380.0~1430.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1430.0~1480.0MHz.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1480.0~1530.0MHz.mms.tar.gz","LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.1630.0~1680.0MHz.mms.tar.gz"};
 
-OutputSandbox = {"StdOut", "StdErr", "1566542621_listobs.txt", "myconfig_%j.txt"};
+OutputSandbox = {"StdOut", "StdErr", "1566542621_sdp_l0_listobs.txt", "myconfig_%j.txt"};
 StdOutput = "StdOut";
 StdError = "StdErr";
 ]
