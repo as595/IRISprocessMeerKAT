@@ -1,7 +1,7 @@
 [
-JobName = "meerkat_runcal_%s";
+JobName = "1566542621_runcal_%s";
 InputSandbox = {"meerkat_runcal.sh","myconfig.txt","IRISprocessMeerKAT.tar.gz"};
-InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/1566542621/1566542621.%s.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/meerkat.xvfb.simg"};
+InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/1566542621/1566542621_sdp_l0.%s.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/meerkat.xvfb.simg"};
 
 Tags = {"skatelescope.eu.hmem","2Processors"};
 
