@@ -1,7 +1,7 @@
 [
 JobName = "1566542621_sdp_l0_precal";
 InputSandbox = {"meerkat_precal.sh","myconfig.txt","IRISprocessMeerKAT.tar.gz"};
-InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.ms", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/meerkat.xvfb.simg", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/casameer-5.4.1.xvfb.simg"};
+InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.ms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/meerkat.xvfb.simg", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/casameer-5.4.1.xvfb.simg"};
 
 Tags = {"skatelescope.eu.hmem","8Processors"};
 
