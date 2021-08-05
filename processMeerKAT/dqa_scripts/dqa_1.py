@@ -18,6 +18,7 @@ from mightee_pol_dqa import cal as _cal
 from mightee_pol_dqa import target as _target
 from mightee_pol_dqa import backend
 
+OBS_DETAILS = './obs_details.txt'
 
 # --------------------------------------------------------------------------------------------------  
 
