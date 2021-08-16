@@ -60,10 +60,9 @@ def get_infiles(dirs,suffix):
 
     return files,pattern
 
-def do_concat(visname, fields, dirs='*MHz'):
+def do_concat(visname, fields, fieldnames, dirs='*MHz'):
 
     #msmd.open(visname)
-    fieldnames = va(taskvals, 'run', 'fieldnames', str)
 
     newvis = visname
     logger.info('Beginning {0}.'.format(sys.argv[0]))
@@ -153,10 +152,11 @@ def main(args,taskvals):
     spw = va(taskvals, 'crosscal', 'spw', str, default='')
     nspw = va(taskvals, 'crosscal', 'nspw', int, default='')
     fields = bookkeeping.get_field_ids(taskvals['fields'])
+    fieldnames = va(taskvals, 'run', 'fieldnames', str)
     dirs = config_parser.parse_spw(args['config'])[3]
     
     if ',' in spw:
-        newvis = do_concat(visname, fields, dirs)
+        newvis = do_concat(visname, fields, fieldnames, dirs)
         config_parser.overwrite_config(args['config'], conf_dict={'vis' : "'{0}'".format(newvis)}, conf_sec='data')
         config_parser.overwrite_config(args['config'], conf_dict={'crosscal_vis': "'{0}'".format(visname)}, conf_sec='run', sec_comment='# Internal variables for pipeline execution')
     else:
