@@ -1,0 +1,21 @@
+[
+JobName = "1566542621_image_%s";
+InputSandbox = {"meerkat_runcal.sh","myconfig.txt","IRISprocessMeerKAT.tar.gz"};
+InputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/1566542621_sdp_l0.%s.mms.tar.gz", "LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/images/casa-6.simg"};
+
+Tags = {"skatelescope.eu.hmem","2Processors"};
+
+Executable = "meerkat_image.sh";
+Site = "LCG.UKI-NORTHGRID-MAN-HEP.uk";
+Arguments = "%j %n %s";
+Platform = "EL7";
+
+Parameters = {"COSMOS_1", "J0408-6545", "J0521+1638", "J1008+0740", "J1331+3030"};
+
+OutputSE = "UKI-NORTHGRID-MAN-HEP-disk";
+OutputData = {"LFN:/skatelescope.eu/user/a/anna.scaife/meerkat/cosmos/1566542621/%s.fits.tar.gz"};
+
+OutputSandbox = {"StdOut", "StdErr", "myconfig_%s.txt"};
+StdOutput = "StdOut";
+StdError = "StdErr";
+]
